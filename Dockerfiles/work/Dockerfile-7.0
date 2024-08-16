@@ -12,7 +12,7 @@
 ###
 ### Installs all cli tools required to install custom tools
 ###
-FROM devilbox/php-fpm:7.0-slim as devilbox-work-help-builder
+FROM mrlexx/php-fpm:7.0-slim AS devilbox-work-help-builder
 
 ###
 ### Install build_dep
@@ -66,8 +66,13 @@ RUN set -eux \
 	&& chown -R devilbox:devilbox "/opt/nvm" \
 	\
 	&& su  -c ". /opt/nvm/nvm.sh; nvm install ${NODE_VERSION}" devilbox \
-	&& su  -c ". /opt/nvm/nvm.sh; nvm use ${NODE_VERSION}" devilbox \
 	&& su  -c ". /opt/nvm/nvm.sh; corepack enable" devilbox \
+	\
+	# su  -c ". /opt/nvm/nvm.sh; nvm install 16" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; nvm install 20" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; nvm install ${NODE_VERSION}" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; nvm use 16" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; corepack enable" devilbox \
 	\
 	&& ln -s "/opt/nvm/versions/node/$(su -c '. /opt/nvm/nvm.sh; node --version' devilbox)/bin/corepack" /usr/local/bin/ \
 	&& ln -s "/opt/nvm/versions/node/$(su -c '. /opt/nvm/nvm.sh; node --version' devilbox)/bin/node" /usr/local/bin/ \
@@ -119,7 +124,7 @@ RUN set -eux \
 ###
 ### Copies all cli tools required to run Devilbox and its intranet into a clean image
 ###
-FROM devilbox/php-fpm:7.0-slim as devilbox-work-help
+FROM mrlexx/php-fpm:7.0-slim AS devilbox-work-help
 
 ###
 ### Install run_dep
@@ -190,7 +195,7 @@ RUN set -eux \
 ###
 ### Test all Devilbox cli utils if copying was successful
 ###
-FROM devilbox-work-help as devilbox-work-help-test
+FROM devilbox-work-help AS devilbox-work-help-test
 
 ###
 ### Devilbox required helper tools from group_vars (work-help.yml)
@@ -260,7 +265,7 @@ RUN set -eux \
 ###
 ### This stage can be easily modified by adding tools into the ./php_tools/ directory.
 ###
-FROM devilbox-work-help as devilbox-work-tools-builder
+FROM devilbox-work-help AS devilbox-work-tools-builder
 
 ###
 ### Install build_dep, run_dep or tools type: apt
@@ -690,7 +695,7 @@ RUN set -eux \
 ###
 ### This stage can be easily modified by adding tools into the ./php_tools/ directory.
 ###
-FROM devilbox-work-help as devilbox-work-tools
+FROM devilbox-work-help AS devilbox-work-tools
 
 ###
 ### Install run_dep or tools type: apt
@@ -767,7 +772,7 @@ COPY --from=devilbox-work-tools-builder /var/lib/gems /var/lib/gems
 ###
 ### Test all Devilbox cli utils if copying was successful
 ###
-FROM devilbox-work-tools as devilbox-work-tools-test
+FROM devilbox-work-tools AS devilbox-work-tools-test
 
 
 # -------------------- (npm) angular-cli --------------------
@@ -1068,8 +1073,8 @@ RUN set -eux \
 ###
 ### Prepare final base image (STAGE: work)
 ###
-FROM devilbox-work-tools as work
-MAINTAINER "cytopia" <cytopia@everythingcli.org>
+FROM devilbox-work-tools AS work
+LABEL org.opencontainers.image.authors="cytopia cytopia@everythingcli.org"
 
 ###
 ### Labels

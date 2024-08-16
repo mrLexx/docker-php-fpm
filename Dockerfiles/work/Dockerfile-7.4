@@ -12,7 +12,7 @@
 ###
 ### Installs all cli tools required to install custom tools
 ###
-FROM devilbox/php-fpm:7.4-slim as devilbox-work-help-builder
+FROM mrlexx/php-fpm:7.4-slim AS devilbox-work-help-builder
 
 ###
 ### Install build_dep
@@ -51,7 +51,7 @@ RUN set -eux \
 
 # -------------------- nvm --------------------
 RUN set -eux \
-	&& NODE_VERSION="--lts" \
+	&& NODE_VERSION="22" \
 	\
 	&& NVM_VERSION="$( \
 	  curl -sS 'https://github.com/nvm-sh/nvm/releases' \
@@ -67,8 +67,13 @@ RUN set -eux \
 	&& chown -R devilbox:devilbox "/opt/nvm" \
 	\
 	&& su  -c ". /opt/nvm/nvm.sh; nvm install ${NODE_VERSION}" devilbox \
-	&& su  -c ". /opt/nvm/nvm.sh; nvm use ${NODE_VERSION}" devilbox \
 	&& su  -c ". /opt/nvm/nvm.sh; corepack enable" devilbox \
+	\
+	# su  -c ". /opt/nvm/nvm.sh; nvm install 16" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; nvm install 20" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; nvm install ${NODE_VERSION}" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; nvm use 16" devilbox \
+	# && su  -c ". /opt/nvm/nvm.sh; corepack enable" devilbox \
 	\
 	&& ln -s "/opt/nvm/versions/node/$(su -c '. /opt/nvm/nvm.sh; node --version' devilbox)/bin/corepack" /usr/local/bin/ \
 	&& ln -s "/opt/nvm/versions/node/$(su -c '. /opt/nvm/nvm.sh; node --version' devilbox)/bin/node" /usr/local/bin/ \
@@ -120,7 +125,7 @@ RUN set -eux \
 ###
 ### Copies all cli tools required to run Devilbox and its intranet into a clean image
 ###
-FROM devilbox/php-fpm:7.4-slim as devilbox-work-help
+FROM mrlexx/php-fpm:7.4-slim AS devilbox-work-help
 
 ###
 ### Install run_dep
@@ -192,7 +197,7 @@ RUN set -eux \
 ###
 ### Test all Devilbox cli utils if copying was successful
 ###
-FROM devilbox-work-help as devilbox-work-help-test
+FROM devilbox-work-help AS devilbox-work-help-test
 
 ###
 ### Devilbox required helper tools from group_vars (work-help.yml)
@@ -262,7 +267,7 @@ RUN set -eux \
 ###
 ### This stage can be easily modified by adding tools into the ./php_tools/ directory.
 ###
-FROM devilbox-work-help as devilbox-work-tools-builder
+FROM devilbox-work-help AS devilbox-work-tools-builder
 
 ###
 ### Install build_dep, run_dep or tools type: apt
@@ -449,45 +454,6 @@ RUN set -eux \
 # -------------------- (apt) net-tools --------------------
 RUN set -eux \
 	&& netstat --version | grep net-tools || (netstat --version; false)	\
-	&& true
-
-# -------------------- (composer) phalcon-devtools --------------------
-RUN set -eux \
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& COMPOSER_HOME="/usr/local/src/composer" COMPOSER_MEMORY_LIMIT=-1 /usr/local/bin/composer-2 global require --no-interaction --no-cache  phalcon/devtools \
-	&& ln -s /usr/local/src/composer/vendor/phalcon/devtools/phalcon /usr/local/bin/ \
-	&& rm -rf /usr/local/src/composer/cache/* \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	\
-	&& phalcon commands | grep -E '[0-9][.0-9]+' || (phalcon commands; false) \
-	\
-	\
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
 	&& true
 
 # -------------------- (custom) php-cs-fixer --------------------
@@ -690,7 +656,7 @@ RUN set -eux \
 ###
 ### This stage can be easily modified by adding tools into the ./php_tools/ directory.
 ###
-FROM devilbox-work-help as devilbox-work-tools
+FROM devilbox-work-help AS devilbox-work-tools
 
 ###
 ### Install run_dep or tools type: apt
@@ -767,7 +733,7 @@ COPY --from=devilbox-work-tools-builder /var/lib/gems /var/lib/gems
 ###
 ### Test all Devilbox cli utils if copying was successful
 ###
-FROM devilbox-work-tools as devilbox-work-tools-test
+FROM devilbox-work-tools AS devilbox-work-tools-test
 
 
 # -------------------- (npm) angular-cli --------------------
@@ -873,28 +839,6 @@ RUN set -eux \
 # -------------------- (apt) net-tools --------------------
 RUN set -eux \
 	&& netstat --version | grep net-tools || (netstat --version; false)	\
-	&& true
-
-# -------------------- (composer) phalcon-devtools --------------------
-RUN set -eux \
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	\
-	&& phalcon commands | grep -E '[0-9][.0-9]+' || (phalcon commands; false) \
-	\
-	\
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
 	&& true
 
 # -------------------- (custom) php-cs-fixer --------------------
@@ -1068,8 +1012,8 @@ RUN set -eux \
 ###
 ### Prepare final base image (STAGE: work)
 ###
-FROM devilbox-work-tools as work
-MAINTAINER "cytopia" <cytopia@everythingcli.org>
+FROM devilbox-work-tools AS work
+LABEL org.opencontainers.image.authors="cytopia cytopia@everythingcli.org"
 
 ###
 ### Labels

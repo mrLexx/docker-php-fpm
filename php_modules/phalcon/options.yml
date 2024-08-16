@@ -6,6 +6,7 @@ name: phalcon
 # Exclude module build/installation for the following PHP versions
 exclude:
   - 5.2
+  - 7.4
   - 8.2
 
 # In order for this module to built correctly against all dependencies,

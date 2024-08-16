@@ -17,7 +17,7 @@ FROM mrlexx/php-fpm-8.2
 {% else %}
 FROM php:{{ php_version }}-fpm
 {% endif %}
-MAINTAINER "cytopia" <cytopia@everythingcli.org>
+LABEL org.opencontainers.image.authors="cytopia cytopia@everythingcli.org"
 
 
 ###

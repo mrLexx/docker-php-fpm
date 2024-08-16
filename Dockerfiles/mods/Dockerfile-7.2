@@ -1,6 +1,6 @@
 # vi: ft=dockerfile
 # Auto-generated via Ansible: edit ./ansible/DOCKERFILES/Dockerfile-mods.j2 instead.
-FROM devilbox/php-fpm:7.2-base as builder
+FROM mrlexx/php-fpm:7.2-base AS builder
 
 
 ###
@@ -924,8 +924,8 @@ RUN set -eux \
 
 
 # Auto-generated via Ansible: edit ./ansible/DOCKERFILES/Dockerfile-mods.j2 instead.
-FROM devilbox/php-fpm:7.2-base as final
-MAINTAINER "cytopia" <cytopia@everythingcli.org>
+FROM mrlexx/php-fpm:7.2-base AS final
+LABEL org.opencontainers.image.authors="cytopia cytopia@everythingcli.org"
 
 ###
 ### Labels

@@ -13,7 +13,7 @@
 # -------------------------------------------------------------------------------------------------
 composer_home: /usr/local/src/composer
 nvm_home: /opt/nvm
-node_version: --lts
+node_version: 22
 
 
 # -------------------------------------------------------------------------------------------------
@@ -118,11 +118,28 @@ help_software_available:
           | NVM_DIR="{{ nvm_home }}" bash \
         \
         && chown -R devilbox:devilbox "{{ nvm_home }}" \
+      # NVM_VERSION="$( \
+      #   curl -sS 'https://github.com/nvm-sh/nvm/releases' \
+      #   | grep -Eo '/nvm-sh/nvm/releases/tag/v?[.0-9]+"' \
+      #   | grep -Eo 'v?[.0-9]+' \
+      #   | sort -V \
+      #   | tail -1 \
+      # )" \
+      # && mkdir -p {{ nvm_home }} \
+      # && curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/${NVM_VERSION}/install.sh" \
+      #   | NVM_DIR="{{ nvm_home }}" bash \
+      # \
+      # && chown -R devilbox:devilbox "{{ nvm_home }}" \
       # Install latest and LTS version and yarn
       post: |
         su  -c ". {{ nvm_home }}/nvm.sh; nvm install ${NODE_VERSION}" devilbox \
-        && su  -c ". {{ nvm_home }}/nvm.sh; nvm use ${NODE_VERSION}" devilbox \
         && su  -c ". {{ nvm_home }}/nvm.sh; corepack enable" devilbox \
+        \
+        # su  -c ". {{ nvm_home }}/nvm.sh; nvm install 16" devilbox \
+        # && su  -c ". {{ nvm_home }}/nvm.sh; nvm install 20" devilbox \
+        # && su  -c ". {{ nvm_home }}/nvm.sh; nvm install ${NODE_VERSION}" devilbox \
+        # && su  -c ". {{ nvm_home }}/nvm.sh; nvm use 16" devilbox \
+        # && su  -c ". {{ nvm_home }}/nvm.sh; corepack enable" devilbox \
         \
         && ln -s "{{ nvm_home }}/versions/node/$(su -c '. {{ nvm_home }}/nvm.sh; node --version' devilbox)/bin/corepack" /usr/local/bin/ \
         && ln -s "{{ nvm_home }}/versions/node/$(su -c '. {{ nvm_home }}/nvm.sh; node --version' devilbox)/bin/node" /usr/local/bin/ \

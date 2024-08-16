@@ -19,6 +19,12 @@ all:
   build_dep: [libpcre3-dev, re2c]
   run_dep: []
 
+7.4:
+  type: git
+  git_url: https://github.com/phalcon/cphalcon
+  git_ref: v5.4.0
+  command: cd build && ./install
+
 7.3:
   type: git
   git_url: https://github.com/phalcon/cphalcon
