@@ -21,6 +21,7 @@ all:
     - libfontenc1
     - libxfont2
     - libxrender1
+    - libxext6
     - xfonts-75dpi
     - xfonts-base
     - xfonts-encodings

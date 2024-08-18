@@ -283,6 +283,7 @@ RUN set -eux \
 		fontconfig \
 		less \
 		libfontenc1 \
+		libxext6 \
 		libxfont2 \
 		libxrender1 \
 		moreutils \
@@ -456,45 +457,6 @@ RUN set -eux \
 	&& netstat --version | grep net-tools || (netstat --version; false)	\
 	&& true
 
-# -------------------- (composer) phalcon-devtools --------------------
-RUN set -eux \
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& COMPOSER_HOME="/usr/local/src/composer" COMPOSER_MEMORY_LIMIT=-1 /usr/local/bin/composer-2 global require --no-interaction --no-cache  phalcon/devtools \
-	&& ln -s /usr/local/src/composer/vendor/phalcon/devtools/phalcon /usr/local/bin/ \
-	&& rm -rf /usr/local/src/composer/cache/* \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	\
-	&& phalcon commands | grep -E '[0-9][.0-9]+' || (phalcon commands; false) \
-	\
-	\
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& true
-
 # -------------------- (custom) php-cs-fixer --------------------
 RUN set -eux \
 	&& PHP_CS_FIXER_URL="https://cs.symfony.com/download/php-cs-fixer-v3.phar"	\
@@ -528,7 +490,7 @@ RUN set -eux \
 
 # -------------------- (custom) phpunit --------------------
 RUN set -eux \
-	&& PHP_UNIT_VERSION=""	\
+	&& PHP_UNIT_VERSION="10"	\
 	&& if [ -n "${PHP_UNIT_VERSION}" ]; then \
 	  PHP_UNIT_URL="https://phar.phpunit.de/phpunit-${PHP_UNIT_VERSION}.phar"; \
 	else \
@@ -709,6 +671,7 @@ RUN set -eux \
 		fontconfig \
 		less \
 		libfontenc1 \
+		libxext6 \
 		libxfont2 \
 		libxrender1 \
 		moreutils \
@@ -878,28 +841,6 @@ RUN set -eux \
 # -------------------- (apt) net-tools --------------------
 RUN set -eux \
 	&& netstat --version | grep net-tools || (netstat --version; false)	\
-	&& true
-
-# -------------------- (composer) phalcon-devtools --------------------
-RUN set -eux \
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	\
-	&& phalcon commands | grep -E '[0-9][.0-9]+' || (phalcon commands; false) \
-	\
-	\
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
 	&& true
 
 # -------------------- (custom) php-cs-fixer --------------------

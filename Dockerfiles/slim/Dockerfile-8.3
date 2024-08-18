@@ -1,6 +1,5 @@
 # vi: ft=dockerfile
-{{ edit_comment_slim }}
-{% import './jinja2/macros-work.j2' as fn %}
+# Auto-generated via Ansible: edit ./ansible/DOCKERFILES/Dockerfile-slim.j2 instead.
 
 ########################################################################################################################
 ########################################################################################################################
@@ -13,7 +12,7 @@
 ###
 ### Installs all cli tools required to run Devilbox and its intranet
 ###
-FROM mrlexx/php-fpm:{{ php_version }}-prod AS devilbox-slim-base-builder
+FROM mrlexx/php-fpm:8.3-prod AS devilbox-slim-base-builder
 
 ###
 ### Install apt Tools
@@ -31,49 +30,20 @@ RUN set -eux \
 ### Add apt repositories
 ###
 RUN set -eux \
-{%- for repo in base_apt_repositories_enabled -%}
-	{#- Not disabled -#}
-	{%- if ('disabled' not in base_apt_repositories_available[repo]) or (php_version not in base_apt_repositories_available[repo]['disabled']) -%}
-		{#- -#}
-		{#- [PRE] -#}
-		{%- if fn.get_pre(php_version, repo, base_apt_repositories_available) | length -%}
-			{{ "\n\t" }}&& {{ fn.get_pre(php_version, repo, base_apt_repositories_available) | indent( "\t" ) }}{{ "\t\\" }}
-		{%- endif -%}
-		{#- -#}
-		{#- [KEY] -#}
-		{%- if fn.tool_repo_get_key(php_version, repo, base_apt_repositories_available) | length -%}
-			{{ "\n\t" }}&& APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv {{ fn.tool_repo_get_key(php_version, repo, base_apt_repositories_available) }} \
-		{%- endif -%}
-		{#- -#}
-		{#- [DEB] -#}
-		{%- if fn.tool_repo_get_deb(php_version, repo, base_apt_repositories_available) | length -%}
-			{{ "\n\t" }}&& echo "{{ fn.tool_repo_get_deb(php_version, repo, base_apt_repositories_available) }}" > /etc/apt/sources.list.d/{{ repo }}.list \
-		{%- endif -%}
-	{%- endif -%}
-{%- endfor -%}
-	{{ "\n\t" }}&& true
+	&& apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 648ACFD622F3D138	\
+	&& echo "deb http://ftp.debian.org/debian bullseye-backports main" > /etc/apt/sources.list.d/backports.list \
+	&& curl -sS -L --fail "https://packages.blackfire.io/gpg.key" | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add -	\
+	&& echo "deb http://packages.blackfire.io/debian any main" > /etc/apt/sources.list.d/blackfire.list \
+	&& true
 
-{% set build_deps = [] -%}
-{%- for ext in base_software_enabled -%}
-	{%- for dep in fn.get_build_dep(php_version, ext, base_software_available) | from_json -%}
-		{%- if dep -%}
-			{{- build_deps.append(dep) -}}
-		{%- endif -%}
-	{%- endfor -%}
-{%- endfor -%}
-{%- if build_deps -%}
 ###
 ### Install build_dep
 ###
 RUN set -eux \
 	&& DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-install-suggests \
-{% for build_dep in build_deps | unique | sort %}
-		{{ build_dep }} \
-{% endfor %}
+		libsnappy-dev \
 	&& rm -rf /var/lib/apt/lists/*
-{%- endif %}
-
 ###
 ### Add common tools
 ###
@@ -82,73 +52,149 @@ RUN set -eux \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-install-suggests \
 		file \
 		git \
-{% if php_version in [7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3] %}
 		mariadb-client \
-{% else %}
-		mysql-client \
-{% endif %}
 		redis-tools \
 		sqlite3
 
-{% set tools_apt = [] -%}
-{%- for tool in base_software_enabled -%}
-	{%- if ('disabled' not in base_software_available[tool]) or (php_version not in base_software_available[tool]['disabled']) -%}
-		{%- if fn.tool_apt_get_package(php_version, tool, base_software_available) -%}
-			{{- tools_apt.append(fn.tool_apt_get_package(php_version, tool, base_software_available)) -}}
-		{%- endif -%}
-	{%- endif -%}
-{%- endfor %}
-
-{%- if tools_apt -%}
 ###
 ### Install tools type: apt
 ###
 RUN set -eux \
 	&& DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-install-suggests \
-	{{- "\n" -}}
-	{%- if tools_apt -%}
-		{{- "\t\t# ---------- type: apt ----------\n" -}}
-		{%- for apt in tools_apt | unique | sort -%}
-				{{- "\t\t" + apt + " \\" + "\n" -}}
-		{%- endfor -%}
-	{%- endif -%}
-	{{- "\t" -}}&& rm -rf /var/lib/apt/lists/*{{- "\n" -}}
-{% endif %}
+		# ---------- type: apt ----------
+		dnsutils \
+		iputils-ping \
+		netcat-openbsd \
+		sudo \
+	&& rm -rf /var/lib/apt/lists/*
 
 ###
 ### Devilbox required cli tools from group_vars (slim.yml)
 ###
-{% for tool in base_software_enabled -%}
-	{# Not disabled #}
-	{%- if ('disabled' not in base_software_available[tool]) or (php_version not in base_software_available[tool]['disabled']) -%}
-		{{- "\n" }}# -------------------- {{ tool }} --------------------
-		{{- "\n" }}RUN set -eux \
-		{#- -#}
-		{#- [PRE] -#}
-		{%- if fn.get_pre(php_version, tool, base_software_available) | length -%}
-			{{ "\n\t" }}&& {{ fn.get_pre(php_version, tool, base_software_available) | indent( "\t" ) }}{{ "\t\\" }}
-		{%- endif -%}
-		{#- -#}
-		{#- [COMMAND] -#}
-		{%- if fn.get_type(php_version, tool, base_software_available) == 'custom' -%}
-			{{ "\n\t" }}&& {{ fn.tool_custom_get_command(php_version, tool, base_software_available) | indent( "\t" ) }}{{ "\t\\" }}
-		{%- endif -%}
-		{#- -#}
-		{#- [POST] -#}
-		{%- if fn.get_post(php_version, tool, base_software_available) | length -%}
-			{{ "\n\t" }}&& {{ fn.get_post(php_version, tool, base_software_available) | indent( "\t" ) }}{{ "\t\\" }}
-		{%- endif -%}
-		{#- -#}
-		{#- [CHECK] -#}
-		{%- if 'check' in base_software_available[tool] -%}
-			{{ "\n\t" }}&& {{ base_software_available[tool]['check'] | indent( "\t" ) }}{{ "\t\\" }}
-		{%- endif -%}
-		{#- -#}
-		{#- Finalize -#}
-		{{ "\n\t" }}&& true{{ "\n" }}
-	{%- endif -%}
-{%- endfor %}
+
+# -------------------- dig --------------------
+RUN set -eux \
+	&& dig -v 2>&1 | grep -E '[0-9]\.[0-9]'	\
+	&& true
+
+# -------------------- netcat --------------------
+RUN set -eux \
+	&& nc -h 2>&1 | grep netcat	\
+	&& true
+
+# -------------------- ping --------------------
+RUN set -eux \
+	&& ping -V | grep ^ping	\
+	&& true
+
+# -------------------- sudo --------------------
+RUN set -eux \
+	&& sudo --version | grep -E 'version [0-9]+\.[0-9]+'	\
+	&& true
+
+# -------------------- blackfire --------------------
+RUN set -eux \
+	&& apt-get update \
+	\
+	&& apt-get install -y --no-install-recommends --no-install-suggests \
+	  blackfire-agent \
+	\
+	&& rm -rf /var/lib/apt/lists/*	\
+	&& blackfire version \
+	&& blackfire-agent -v \
+	\
+	&& true
+
+# -------------------- mhsendmail --------------------
+RUN set -eux \
+	&& DEB_HOST_ARCH="$( dpkg-architecture --query DEB_HOST_ARCH )" \
+	&& if [ "${DEB_HOST_ARCH}" = "amd64" ] || [ "${DEB_HOST_ARCH}" = "arm64" ]; then \
+	  MHSENDMAIL_URL="https://github.com/devilbox/mhsendmail/releases/download/v0.3.0/mhsendmail_linux_${DEB_HOST_ARCH}" \
+	  && curl -sS -L --fail "${MHSENDMAIL_URL}" > /usr/local/bin/mhsendmail \
+	  && chmod +x /usr/local/bin/mhsendmail; \
+	else \
+	  printf '%s\n%s\n%s\n' '#!/bin/sh' 'echo "Not available for this platform."' 'exit 1' > /usr/local/bin/mhsendmail \
+	  && chmod +x /usr/local/bin/mhsendmail; \
+	fi \
+	\
+	&& mhsendmail -h 2>&1 | grep 'Usage'	\
+	&& true
+
+# -------------------- mongo_client --------------------
+RUN set -eux \
+	&& APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 20691EEC35216C63CAF66CE1656408E390CFB1F5 \
+	&& echo "deb http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" > /etc/apt/sources.list.d/mongo.list \
+	&& apt-get update \
+	\
+	&& apt-get install -y --no-install-recommends --no-install-suggests \
+	  mongodb-org-tools \
+	  mongodb-org-shell \
+	\
+	&& rm -rf /var/lib/apt/lists/*	\
+	&& if echo '8.3' | grep -E '^(5.2|5.3|5.4|5.5|5.6|7.0)$' >/dev/null; then \
+	  if [ "$(dpkg-architecture --query DEB_BUILD_ARCH)" = "amd64" ]; then \
+	    mongofiles --version; \
+	  fi \
+	else \
+	  mongofiles --version; \
+	fi \
+	\
+	&& if echo '8.3' | grep -E '^(5.2|5.3|5.4|5.5)$' >/dev/null; then \
+	  if [ "$(dpkg-architecture --query DEB_BUILD_ARCH)" = "amd64" ]; then \
+	    mongo --version; \
+	  fi \
+	else \
+	  mongo --version; \
+	fi \
+	\
+	&& true
+
+# -------------------- mysqldumpsecure --------------------
+RUN set -eux \
+	&& git clone https://github.com/cytopia/mysqldump-secure.git /usr/local/src/mysqldump-secure \
+	&& cd /usr/local/src/mysqldump-secure \
+	&& git checkout $(git describe --abbrev=0 --tags) \
+	&& cp /usr/local/src/mysqldump-secure/bin/mysqldump-secure /usr/local/bin \
+	&& cp /usr/local/src/mysqldump-secure/etc/mysqldump-secure.conf /etc \
+	&& cp /usr/local/src/mysqldump-secure/etc/mysqldump-secure.cnf /etc \
+	&& touch /var/log/mysqldump-secure.log \
+	&& chown ${MY_USER}:${MY_GROUP} /etc/mysqldump-secure.* \
+	&& chown ${MY_USER}:${MY_GROUP} /var/log/mysqldump-secure.log \
+	&& chmod 0400 /etc/mysqldump-secure.conf \
+	&& chmod 0400 /etc/mysqldump-secure.cnf \
+	&& chmod 0644 /var/log/mysqldump-secure.log \
+	&& sed -i'' 's/^COMPRESS_ARG=.*/COMPRESS_ARG="-9 -c"/g' /etc/mysqldump-secure.conf \
+	&& sed -i'' 's/^DUMP_DIR=.*/DUMP_DIR="\/shared\/backups\/mysql"/g' /etc/mysqldump-secure.conf \
+	&& sed -i'' 's/^DUMP_DIR_CHMOD=.*/DUMP_DIR_CHMOD="0755"/g' /etc/mysqldump-secure.conf \
+	&& sed -i'' 's/^DUMP_FILE_CHMOD=.*/DUMP_FILE_CHMOD="0644"/g' /etc/mysqldump-secure.conf \
+	&& sed -i'' 's/^LOG_CHMOD=.*/LOG_CHMOD="0644"/g' /etc/mysqldump-secure.conf \
+	&& sed -i'' 's/^NAGIOS_LOG=.*/NAGIOS_LOG=0/g' /etc/mysqldump-secure.conf \
+	&& cd / \
+	&& rm -rf /usr/local/src/mysqldump-secure \
+	\
+	&& mysqldump-secure --version | grep -E 'Version:\s*[0-9][.0-9]+'	\
+	&& true
+
+# -------------------- pgsql_client --------------------
+RUN set -eux \
+	&& curl -sS -k -L --fail https://www.postgresql.org/media/keys/ACCC4CF8.asc | APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1 apt-key add - \
+	&& echo "deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main" > /etc/apt/sources.list.d/pgsql.list \
+	&& apt-get update \
+	\
+	&& apt-get install -y --no-install-recommends --no-install-suggests \
+	  postgresql-client \
+	\
+	&& rm -rf /var/lib/apt/lists/*	\
+	&& if echo '8.3' | grep -E '^(5.2|5.3|5.4|5.5|5.6|7.0)$' >/dev/null; then \
+	  if [ "$(dpkg-architecture --query DEB_BUILD_ARCH)" = "amd64" ]; then \
+	    pg_isready --version; \
+	  fi \
+	else \
+	  pg_isready --version; \
+	fi \
+	\
+	&& true
 
 ###
 ### Prepare required shared libraries for copying (keep symlinks)
@@ -249,34 +295,21 @@ RUN set -eux \
 ###
 ### Copies all cli tools required to run Devilbox and its intranet into a clean image
 ###
-FROM mrlexx/php-fpm:{{ php_version }}-prod AS devilbox-slim-base
+FROM mrlexx/php-fpm:8.3-prod AS devilbox-slim-base
 ARG ARCH
 
-{% set tools_apt = [] -%}
-{%- for tool in base_software_enabled -%}
-	{%- if ('disabled' not in base_software_available[tool]) or (php_version not in base_software_available[tool]['disabled']) -%}
-		{%- if fn.tool_apt_get_package(php_version, tool, base_software_available) -%}
-			{{- tools_apt.append(fn.tool_apt_get_package(php_version, tool, base_software_available)) -}}
-		{%- endif -%}
-	{%- endif -%}
-{%- endfor %}
-
-{%- if tools_apt -%}
 ###
 ### Install tools type: apt
 ###
 RUN set -eux \
 	&& DEBIAN_FRONTEND=noninteractive apt-get update \
 	&& DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends --no-install-suggests \
-	{{- "\n" -}}
-	{%- if tools_apt -%}
-		{{- "\t\t# ---------- type: apt ----------\n" -}}
-		{%- for apt in tools_apt | unique | sort -%}
-				{{- "\t\t" + apt + " \\" + "\n" -}}
-		{%- endfor -%}
-	{%- endif -%}
-	{{- "\t" -}}&& rm -rf /var/lib/apt/lists/*{{- "\n" -}}
-{% endif %}
+		# ---------- type: apt ----------
+		dnsutils \
+		iputils-ping \
+		netcat-openbsd \
+		sudo \
+	&& rm -rf /var/lib/apt/lists/*
 
 ###
 ### Copy shared libraries (required by MongoDB, MySQL, PostgreSQL and Redis)
@@ -371,8 +404,8 @@ COPY --from=devilbox-slim-base-builder /usr/bin/sqlite* /usr/bin/
 ###
 ### ADD PHP configuration files
 ###
-COPY ./data/php-ini.d/php-{{ php_version }}.ini /usr/local/etc/php/conf.d/xxx-devilbox-default-php.ini
-COPY ./data/php-fpm.conf/php-fpm-{{ php_version }}.conf /usr/local/etc/php-fpm.conf
+COPY ./data/php-ini.d/php-8.3.ini /usr/local/etc/php/conf.d/xxx-devilbox-default-php.ini
+COPY ./data/php-fpm.conf/php-fpm-8.3.conf /usr/local/etc/php-fpm.conf
 
 ###
 ### ADD Devilbox configuration files
@@ -429,21 +462,75 @@ RUN set -eux \
 ###
 ### Check if available tools slim
 ###
-{% for tool in base_software_enabled -%}
-	{# Not disabled #}
-	{%- if ('disabled' not in base_software_available[tool]) or (php_version not in base_software_available[tool]['disabled']) -%}
-		{{- "\n" }}# -------------------- {{ tool }} --------------------
-		{{- "\n" }}RUN set -eux \
-		{#- -#}
-		{#- [CHECK] -#}
-		{%- if 'check' in base_software_available[tool] -%}
-			{{ "\n\t" }}&& {{ base_software_available[tool]['check'] | indent( "\t" ) }}{{ "\t\\" }}
-		{%- endif -%}
-		{#- -#}
-		{#- Finalize -#}
-		{{ "\n\t" }}&& true{{ "\n" }}
-	{%- endif -%}
-{%- endfor %}
+
+# -------------------- dig --------------------
+RUN set -eux \
+	&& dig -v 2>&1 | grep -E '[0-9]\.[0-9]'	\
+	&& true
+
+# -------------------- netcat --------------------
+RUN set -eux \
+	&& nc -h 2>&1 | grep netcat	\
+	&& true
+
+# -------------------- ping --------------------
+RUN set -eux \
+	&& ping -V | grep ^ping	\
+	&& true
+
+# -------------------- sudo --------------------
+RUN set -eux \
+	&& sudo --version | grep -E 'version [0-9]+\.[0-9]+'	\
+	&& true
+
+# -------------------- blackfire --------------------
+RUN set -eux \
+	&& blackfire version \
+	&& blackfire-agent -v \
+	\
+	&& true
+
+# -------------------- mhsendmail --------------------
+RUN set -eux \
+	&& mhsendmail -h 2>&1 | grep 'Usage'	\
+	&& true
+
+# -------------------- mongo_client --------------------
+RUN set -eux \
+	&& if echo '8.3' | grep -E '^(5.2|5.3|5.4|5.5|5.6|7.0)$' >/dev/null; then \
+	  if [ "$(dpkg-architecture --query DEB_BUILD_ARCH)" = "amd64" ]; then \
+	    mongofiles --version; \
+	  fi \
+	else \
+	  mongofiles --version; \
+	fi \
+	\
+	&& if echo '8.3' | grep -E '^(5.2|5.3|5.4|5.5)$' >/dev/null; then \
+	  if [ "$(dpkg-architecture --query DEB_BUILD_ARCH)" = "amd64" ]; then \
+	    mongo --version; \
+	  fi \
+	else \
+	  mongo --version; \
+	fi \
+	\
+	&& true
+
+# -------------------- mysqldumpsecure --------------------
+RUN set -eux \
+	&& mysqldump-secure --version | grep -E 'Version:\s*[0-9][.0-9]+'	\
+	&& true
+
+# -------------------- pgsql_client --------------------
+RUN set -eux \
+	&& if echo '8.3' | grep -E '^(5.2|5.3|5.4|5.5|5.6|7.0)$' >/dev/null; then \
+	  if [ "$(dpkg-architecture --query DEB_BUILD_ARCH)" = "amd64" ]; then \
+	    pg_isready --version; \
+	  fi \
+	else \
+	  pg_isready --version; \
+	fi \
+	\
+	&& true
 
 ###
 ### Re-activate modules which have been deactivated in mods (for testing).
@@ -464,7 +551,7 @@ RUN set -eux \
 ###
 RUN set -eux \
 	&& echo "date.timezone=UTC" > /usr/local/etc/php/php.ini \
-	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^{{ php_version }}' \
+	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.3' \
 	&& /usr/local/sbin/php-fpm --test \
 	\
 	&& PHP_ERROR="$( php -v 2>&1 1>/dev/null )" \
@@ -508,9 +595,9 @@ LABEL "org.opencontainers.image.documentation"="https://github.com/devilbox/dock
 LABEL "org.opencontainers.image.source"="https://github.com/devilbox/docker-php-fpm"
 LABEL "org.opencontainers.image.vendor"="devilbox"
 LABEL "org.opencontainers.image.licenses"="MIT"
-LABEL "org.opencontainers.image.ref.name"="{{ php_version }}-slim"
-LABEL "org.opencontainers.image.title"="PHP-FPM {{ php_version }}-slim"
-LABEL "org.opencontainers.image.description"="PHP-FPM {{ php_version }}-slim"
+LABEL "org.opencontainers.image.ref.name"="8.3-slim"
+LABEL "org.opencontainers.image.title"="PHP-FPM 8.3-slim"
+LABEL "org.opencontainers.image.description"="PHP-FPM 8.3-slim"
 
 ###
 ### Volumes

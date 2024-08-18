@@ -605,20 +605,10 @@ RUN set -eux \
 
 # -------------------- Installing PHP Extension: phalcon --------------------
 RUN set -eux \
-	# Installation: Generic
-	# Type:         GIT extension
-	&& git clone https://github.com/phalcon/cphalcon /tmp/phalcon \
-	&& cd /tmp/phalcon \
-	# Custom:       Branch
-	&& git checkout $(git for-each-ref --format='%(*creatordate:raw)%(creatordate:raw) %(refname)' refs/tags \
-  | sort -V \
-  | sed 's/^.*tags\///g' \
-  | grep -E '^v[.0-9]+$' \
-  | tail -1 \
-) \
- \
-	# Custom:       Install command
-	&& cd build && ./install \
+	# Installation: Version specific
+	# Type:         PECL extension
+	# Default:      Pecl command
+	&& pecl install phalcon \
 	# Enabling
 	&& docker-php-ext-enable phalcon \
 	&& true
@@ -1178,7 +1168,6 @@ RUN set -eux \
 # https://github.com/devilbox/docker-php-fpm/issues/201
 # Deactivate xhprof (might collide with Xdebug)
 RUN set -eux \
-	&& rm -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini || true \
 	&& rm -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini || true \
 	&& rm -f /usr/local/etc/php/conf.d/docker-php-ext-xhprof.ini || true \
 

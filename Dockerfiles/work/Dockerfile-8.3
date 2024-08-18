@@ -12,7 +12,7 @@
 ###
 ### Installs all cli tools required to install custom tools
 ###
-FROM mrlexx/php-fpm:7.3-slim AS devilbox-work-help-builder
+FROM mrlexx/php-fpm:8.3-slim AS devilbox-work-help-builder
 
 ###
 ### Install build_dep
@@ -125,7 +125,7 @@ RUN set -eux \
 ###
 ### Copies all cli tools required to run Devilbox and its intranet into a clean image
 ###
-FROM mrlexx/php-fpm:7.3-slim AS devilbox-work-help
+FROM mrlexx/php-fpm:8.3-slim AS devilbox-work-help
 
 ###
 ### Install run_dep
@@ -240,7 +240,7 @@ RUN set -eux \
 ###
 RUN set -eux \
 	&& echo "date.timezone=UTC" > /usr/local/etc/php/php.ini \
-	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^7.3' \
+	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.3' \
 	&& /usr/local/sbin/php-fpm --test \
 	\
 	&& PHP_ERROR="$( php -v 2>&1 1>/dev/null )" \
@@ -457,48 +457,9 @@ RUN set -eux \
 	&& netstat --version | grep net-tools || (netstat --version; false)	\
 	&& true
 
-# -------------------- (composer) phalcon-devtools --------------------
-RUN set -eux \
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& COMPOSER_HOME="/usr/local/src/composer" COMPOSER_MEMORY_LIMIT=-1 /usr/local/bin/composer-2 global require --no-interaction --no-cache  phalcon/devtools \
-	&& ln -s /usr/local/src/composer/vendor/phalcon/devtools/phalcon /usr/local/bin/ \
-	&& rm -rf /usr/local/src/composer/cache/* \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	\
-	&& phalcon commands | grep -E '[0-9][.0-9]+' || (phalcon commands; false) \
-	\
-	\
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& true
-
 # -------------------- (custom) php-cs-fixer --------------------
 RUN set -eux \
-	&& PHP_CS_FIXER_URL="https://cs.symfony.com/download/php-cs-fixer-v2.phar"	\
+	&& PHP_CS_FIXER_URL="https://cs.symfony.com/download/php-cs-fixer-v3.phar"	\
 	&& curl -sS -k -L --fail -L "${PHP_CS_FIXER_URL}" -o /usr/local/bin/php-cs-fixer	\
 	&& chmod +x /usr/local/bin/php-cs-fixer	\
 	&& php-cs-fixer --version 2>&1 | grep -E 'Fixer\s+(version\s*)?[-_.0-9]+\s+' || (php-cs-fixer --version; false)	\
@@ -529,7 +490,7 @@ RUN set -eux \
 
 # -------------------- (custom) phpunit --------------------
 RUN set -eux \
-	&& PHP_UNIT_VERSION="9"	\
+	&& PHP_UNIT_VERSION=""	\
 	&& if [ -n "${PHP_UNIT_VERSION}" ]; then \
 	  PHP_UNIT_URL="https://phar.phpunit.de/phpunit-${PHP_UNIT_VERSION}.phar"; \
 	else \
@@ -882,28 +843,6 @@ RUN set -eux \
 	&& netstat --version | grep net-tools || (netstat --version; false)	\
 	&& true
 
-# -------------------- (composer) phalcon-devtools --------------------
-RUN set -eux \
-	&& if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
-	  echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if find /usr/local/lib/php/extensions/ -name psr.so | grep psr; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	\
-	&& phalcon commands | grep -E '[0-9][.0-9]+' || (phalcon commands; false) \
-	\
-	\
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini ]; then \
-	  rm /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
-	fi \
-	&& if [ -f /usr/local/etc/php/conf.d/docker-php-ext-psr.ini ]; then \
-	  echo "extension=psr.so" > /usr/local/etc/php/conf.d/docker-php-ext-psr.ini; \
-	fi \
-	\
-	&& true
-
 # -------------------- (custom) php-cs-fixer --------------------
 RUN set -eux \
 	&& php-cs-fixer --version 2>&1 | grep -E 'Fixer\s+(version\s*)?[-_.0-9]+\s+' || (php-cs-fixer --version; false)	\
@@ -1048,7 +987,7 @@ RUN set -eux \
 ###
 RUN set -eux \
 	&& echo "date.timezone=UTC" > /usr/local/etc/php/php.ini \
-	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^7.3' \
+	&& php -v | grep -oE 'PHP\s[.0-9]+' | grep -oE '[.0-9]+' | grep '^8.3' \
 	&& /usr/local/sbin/php-fpm --test \
 	\
 	&& PHP_ERROR="$( php -v 2>&1 1>/dev/null )" \
@@ -1092,9 +1031,9 @@ LABEL "org.opencontainers.image.documentation"="https://github.com/devilbox/dock
 LABEL "org.opencontainers.image.source"="https://github.com/devilbox/docker-php-fpm"
 LABEL "org.opencontainers.image.vendor"="devilbox"
 LABEL "org.opencontainers.image.licenses"="MIT"
-LABEL "org.opencontainers.image.ref.name"="7.3-work"
-LABEL "org.opencontainers.image.title"="PHP-FPM 7.3-work"
-LABEL "org.opencontainers.image.description"="PHP-FPM 7.3-work"
+LABEL "org.opencontainers.image.ref.name"="8.3-work"
+LABEL "org.opencontainers.image.title"="PHP-FPM 8.3-work"
+LABEL "org.opencontainers.image.description"="PHP-FPM 8.3-work"
 
 ###
 ### Volumes

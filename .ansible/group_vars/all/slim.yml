@@ -16,6 +16,9 @@ os_release:
   all:
     debian: bullseye
     ubuntu: focal
+  8.3:
+    debian: bullseye
+    ubuntu: focal
   8.2:
     debian: bullseye
     ubuntu: focal

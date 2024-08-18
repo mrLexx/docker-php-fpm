@@ -141,7 +141,7 @@ extensions_available:
       version: 1.6.1
       run_dep: [librabbitmq1]
   apc:
-    disabled: [5.2, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [5.2, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     already_avail: "{{ php_all_versions }}"
   apcu:
     disabled: [5.2]
@@ -235,7 +235,7 @@ extensions_available:
       build_dep: [libenchant-dev]
       run_dep: [libenchant1c2a]
   ereg:
-    disabled: [5.2, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [5.2, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     already_avail: "{{ php_all_versions }}"
   mbstring:
     disabled: []
@@ -246,14 +246,14 @@ extensions_available:
       type: builtin
   ffi:
     disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3]
-    already_avail: [8.0, 8.1, 8.2]
+    already_avail: [8.0, 8.1, 8.2, 8.3]
     all:
       type: builtin
       build_dep: [libffi-dev]
       run_dep: [libffi7]
   fileinfo:
     disabled: []
-    already_avail: [5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    already_avail: [5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     5.2:
       type: pecl
       build_dep: [libmagic-dev]
@@ -272,6 +272,11 @@ extensions_available:
       configure: --with-gd --with-vpx-dir=/usr --with-jpeg-dir=/usr --with-png-dir=/usr --with-zlib-dir=/usr --with-xpm-dir=/usr --with-freetype-dir=/usr --enable-gd-native-ttf
       build_dep: [libpng-dev, libjpeg-dev, libxpm-dev, libvpx-dev, zlib1g-dev, libfreetype6-dev, libwebp-dev]
       run_dep: [libpng16-16, libjpeg62-turbo, libxpm4, libvpx6, libfreetype6, libwebp6]
+    8.3:
+      type: builtin
+      configure: --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype --with-avif
+      build_dep: [libpng-dev, libjpeg-dev, libxpm-dev, libvpx-dev, zlib1g-dev, libfreetype6-dev, libwebp-dev, libavif-dev]
+      run_dep: [libpng16-16, libjpeg62-turbo, libxpm4, libvpx6, libfreetype6, libwebp6, libavif9]
     8.2:
       type: builtin
       configure: --enable-gd --with-webp --with-jpeg --with-xpm --with-freetype --with-avif
@@ -385,7 +390,7 @@ extensions_available:
       type: pecl
       version: 2.0.7
   imagick:
-    disabled: [5.2, 5.3, 5.4]
+    disabled: [5.2, 5.3, 5.4, 8.3]
     all:
       type: pecl
       build_dep: [libmagickwand-dev, libwebp-dev, ghostscript]
@@ -420,7 +425,7 @@ extensions_available:
       build_dep: [libc-client-dev, libkrb5-dev, libcurl4-openssl-dev]
       run_dep: [libc-client2007e]
   interbase:
-    disabled: [7.4, 8.0, 8.1, 8.2]
+    disabled: [7.4, 8.0, 8.1, 8.2, 8.3]
     all:
       type: builtin
       build_dep: [libfbclient2, libib-util, firebird-dev]
@@ -509,7 +514,7 @@ extensions_available:
       build_dep: []
       run_dep: []
   mcrypt:
-    disabled: [8.1, 8.2]
+    disabled: [8.1, 8.2, 8.3]
     all:
       type: pecl
       run_dep: [libmcrypt4]
@@ -640,10 +645,10 @@ extensions_available:
       version: 2.1.0
       run_dep: [libmemcachedutil2, libevent-2.0-5]
   mhash:
-    disabled: [7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     already_avail: [5.2, 5.3, 5.4, 5.5, 5.6]
   mongo:
-    disabled: [7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     all:
       type: pecl
       command: yes yes | pecl install mongo
@@ -675,7 +680,7 @@ extensions_available:
       type: pecl
       version: 0.6.3
   mysql:
-    disabled: [7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     all:
       type: builtin
       configure: --with-mysql --with-mysql-sock --with-zlib-dir=/usr --with-libdir="/lib/$(dpkg-architecture --query DEB_BUILD_MULTIARCH)"
@@ -717,7 +722,7 @@ extensions_available:
       build_dep: [libmysqlclient-dev]
   mysqlnd:
     disabled: [5.2]
-    already_avail: [5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    already_avail: [5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
   pcre:
     disabled: []
     already_avail: "{{ php_all_versions }}"
@@ -788,7 +793,7 @@ extensions_available:
         && ORACLE_VERSION_FULL="$( echo "${ORACLE_HREF}" | grep -Eo 'basiclite-[-.0-9]+' | sed -e 's/basiclite-//g' -e 's/\.$//g' )" \
         && (ln -sf /usr/lib/oracle/${ORACLE_VERSION_MAJOR}/client64/lib/*.so* /usr/lib/ || true) \
   odbc:
-    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
   opcache:
     disabled: []
     all:
@@ -896,6 +901,9 @@ extensions_available:
         && rm -f /tmp/oracle-instantclient${ORACLE_VERSION_MAJOR}-devel-${ORACLE_VERSION_FULL}.${ARCH}.rpm \
         && (ln -s /usr/lib/oracle/${ORACLE_VERSION_MAJOR}/client64/lib/*.so* /usr/lib/ || true) \
       build_dep: [alien]
+    8.3:
+      type: builtin
+      configure: --with-pdo-oci=instantclient,/usr/lib/oracle/${ORACLE_VERSION_MAJOR}/client64/lib/,${ORACLE_VERSION_MAJOR}
     8.2:
       type: builtin
       configure: --with-pdo-oci=instantclient,/usr/lib/oracle/${ORACLE_VERSION_MAJOR}/client64/lib/,${ORACLE_VERSION_MAJOR}
@@ -915,7 +923,7 @@ extensions_available:
       type: builtin
       configure: --with-pdo-oci=instantclient,/usr/lib/oracle/${ORACLE_VERSION_MAJOR}/client64/lib/,${ORACLE_VERSION_MAJOR}
   pdo_odbc:
-    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
   pdo_pgsql:
     disabled: []
     all:
@@ -1155,7 +1163,7 @@ extensions_available:
       type: pecl
       version: 5.3.0
   phalcon:
-    disabled: [5.2, 7.4, 8.2]
+    disabled: [5.2, 7.4, 8.4]
     all:
       type: git
       git_url: https://github.com/phalcon/cphalcon
@@ -1169,11 +1177,19 @@ extensions_available:
       command: cd build && ./install
       build_dep: [libpcre3-dev, re2c]
       run_dep: []
+    8.3:
+      type: pecl
+      build_dep: [libpcre3-dev, re2c]
+    8.2:
+      type: pecl
+      build_dep: [libpcre3-dev, re2c]
+    8.1:
+      type: pecl
+      build_dep: [libpcre3-dev, re2c]
     7.4:
-      type: git
-      git_url: https://github.com/phalcon/cphalcon
-      git_ref: v5.4.0
-      command: cd build && ./install
+      type: pecl
+      version: 5.4.0
+      build_dep: [libpcre3-dev, re2c]
     7.3:
       type: git
       git_url: https://github.com/phalcon/cphalcon
@@ -1216,7 +1232,7 @@ extensions_available:
       command: cd build && ./install
   phar:
     disabled: []
-    already_avail: [5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    already_avail: [5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     5.2:
       type: pecl
       build_dep: [libssl-dev]
@@ -1230,7 +1246,7 @@ extensions_available:
       build_dep: [libpspell-dev]
       run_dep: [libaspell15]
   random:
-    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     already_avail: "{{ php_all_versions }}"
   rdkafka:
     disabled: [5.2]
@@ -1257,7 +1273,7 @@ extensions_available:
     disabled: []
     already_avail: "{{ php_all_versions }}"
   recode:
-    disabled: [7.4, 8.0, 8.1, 8.2]
+    disabled: [7.4, 8.0, 8.1, 8.2, 8.3]
     already_avail: [5.2, 5.3, 5.4, 5.5]
     all:
       type: builtin
@@ -1314,7 +1330,7 @@ extensions_available:
       type: builtin
       build_dep: [libsodium-dev]
   solr:
-    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 8.2]
+    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 7.0, 8.2, 8.3]
     all:
       type: pecl
       build_dep: [libxml2-dev, libcurl4-openssl-dev]
@@ -1322,10 +1338,10 @@ extensions_available:
     disabled: []
     already_avail: "{{ php_all_versions }}"
   sqlite:
-    disabled: [5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2]
+    disabled: [5.4, 5.5, 5.6, 7.0, 7.1, 7.2, 7.3, 7.4, 8.0, 8.1, 8.2, 8.3]
     already_avail: "{{ php_all_versions }}"
   ssh2:
-    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 8.0, 8.1, 8.2]
+    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 8.0, 8.1, 8.2, 8.3]
     all:
       type: pecl
       version: 1.2
@@ -1507,7 +1523,7 @@ extensions_available:
       type: pecl
       version: 1.0.5
   vips:
-    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 8.2]
+    disabled: [5.2, 5.3, 5.4, 5.5, 5.6, 8.2, 8.3]
     all:
       type: pecl
       build_dep:
@@ -1519,7 +1535,7 @@ extensions_available:
       type: pecl
       version: 1.0.0
   wddx:
-    disabled: [7.4, 8.0, 8.1, 8.2]
+    disabled: [7.4, 8.0, 8.1, 8.2, 8.3]
     all:
       type: builtin
       configure: --with-libxml-dir=/usr
@@ -1573,7 +1589,7 @@ extensions_available:
     disabled: []
     already_avail: "{{ php_all_versions }}"
   xmlrpc:
-    disabled: [8.0, 8.1, 8.2]
+    disabled: [8.0, 8.1, 8.2, 8.3]
     all:
       type: builtin
       configure: --with-libxml-dir=/usr --with-iconv-dir=/usr

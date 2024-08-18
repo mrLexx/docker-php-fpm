@@ -345,7 +345,7 @@ tools_available:
       type: apt
       package: net-tools
   phalcon-devtools:
-    disabled: [5.2, 5.3, 5.4, 7.4, 8.2]
+    disabled: [5.2, 5.3, 5.4, 7.4, 8.1, 8.2, 8.3, 8.4]
     check: |
         if find /usr/local/lib/php/extensions/ -name phalcon.so | grep phalcon; then \
           echo "extension=phalcon.so" > /usr/local/etc/php/conf.d/docker-php-ext-phalcon.ini; \
@@ -480,6 +480,9 @@ tools_available:
       run_dep: []
       pre: PHP_UNIT_VERSION=""
       post: chmod +x /usr/local/bin/phpunit
+    8.1:
+      type: custom
+      pre: PHP_UNIT_VERSION="10"
     7.4:
       type: custom
       pre: PHP_UNIT_VERSION="9"
@@ -650,6 +653,7 @@ tools_available:
         - libfontenc1
         - libxfont2
         - libxrender1
+        - libxext6
         - xfonts-75dpi
         - xfonts-base
         - xfonts-encodings

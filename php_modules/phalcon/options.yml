@@ -7,7 +7,7 @@ name: phalcon
 exclude:
   - 5.2
   - 7.4
-  - 8.2
+  - 8.4
 
 # In order for this module to built correctly against all dependencies,
 # the following modules must have been built first.
